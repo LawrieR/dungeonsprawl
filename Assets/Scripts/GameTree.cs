@@ -253,7 +253,10 @@ public class GameTree : MonoBehaviour {
             initialPositionX,
             initialPositionY,
             grid,
-            chanceOfCutShort);
+            chanceOfCutShort,
+            locationToSpriteScale,
+            offsetX, 
+            offsetY);
     }
 
 	

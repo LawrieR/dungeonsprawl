@@ -13,13 +13,21 @@ public class Room {
     int depth = 0; //how far along the tree is the room
     public int x;
     public int y;
-
+    float locationToSpriteScale = 0f;
+    private float roomz = 0.5f;
     public Room parentRoom;
     public List<Room> AdjacentRooms = new List<Room>();
+
+    public GameObject spawnerPrefab;
+    public GameObject spawner;
+
+    float offsetX = 0f;
+    float offsetY = 0f;
 
     public Room(GameTree gt)
     {
         parentTree = gt;
+        
     }
 
     public Room(GameTree gt, bool _isMain, bool _isObjective)
@@ -27,9 +35,10 @@ public class Room {
         parentTree = gt;
         isMain = _isMain;
         isObjective = _isObjective;
+        
     }
 
-    public Room(Room parent, GameTree gt, float _difficulty, bool _isObjective, int _depth, Room[,] grid, int initX, int initY)
+    public Room(Room parent, GameTree gt, float _difficulty, bool _isObjective, int _depth, Room[,] grid, int initX, int initY, float _locationToSpriteScale, float _offsetX, float _offsetY)
     {
         parentRoom = parent;
         parentTree = gt;
@@ -39,18 +48,14 @@ public class Room {
         type = depth;
         x = initX;
         y = initY;
+        offsetX = _offsetX;
+        offsetY = _offsetY;
         grid[initX, initY] = this;
-    }
-
-    // Use this for initialization
-    void Start()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
+        locationToSpriteScale = _locationToSpriteScale;
+        spawnerPrefab = (GameObject)Resources.Load("Assets/Spawner", typeof(GameObject));
+        spawner = GameObject.Instantiate(spawnerPrefab);
+        spawner.transform.position = new Vector3((x * locationToSpriteScale) + offsetX, (y * locationToSpriteScale) + offsetY, 0.49f);
+        spawner.GetComponent<Spawner>().setParent(this);
 
     }
 
@@ -204,7 +209,7 @@ public class Room {
         return ret;
     }
 
-    public void addInitialRooms(int _initialCount, float _difficulty, float chanceOfTwoRooms, float chanceOfThreeRooms, int _maxDepth, AnimationCurve _difficultyCurve, int initX, int initY, Room[,] grid, float chanceOfCutShort)
+    public void addInitialRooms(int _initialCount, float _difficulty, float chanceOfTwoRooms, float chanceOfThreeRooms, int _maxDepth, AnimationCurve _difficultyCurve, int initX, int initY, Room[,] grid, float chanceOfCutShort, float locationToSpriteScale, float _offsetX, float _offsetY)
     {
         x = initX;
         y = initY;
@@ -215,14 +220,14 @@ public class Room {
             Decision newLocation = decideLocation(grid, initX, initY, chanceOfCutShort);
             if (newLocation.success)
             {
-                Room newRoom = new Room(this,parentTree, roomScale(depth, _maxDepth, _difficultyCurve), false, depth + 1, grid, newLocation.x, newLocation.y);
+                Room newRoom = new Room(this,parentTree, roomScale(depth, _maxDepth, _difficultyCurve), false, depth + 1, grid, newLocation.x, newLocation.y, locationToSpriteScale, _offsetX, _offsetY);
                 AdjacentRooms.Add(newRoom);
-                newRoom.addRooms(roomScale(depth + 1, _maxDepth, _difficultyCurve), chanceOfTwoRooms, chanceOfThreeRooms, _maxDepth, _difficultyCurve, newLocation.x, newLocation.y, grid, chanceOfCutShort);
+                newRoom.addRooms(roomScale(depth + 1, _maxDepth, _difficultyCurve), chanceOfTwoRooms, chanceOfThreeRooms, _maxDepth, _difficultyCurve, newLocation.x, newLocation.y, grid, chanceOfCutShort, locationToSpriteScale, _offsetX, _offsetY);
             }
         }
     }
 
-    public void addRooms(float _difficulty, float chanceOfTwoRooms, float chanceOfThreeRooms, int _maxDepth, AnimationCurve _difficultyCurve, int initX, int initY, Room[,] grid, float chanceOfCutShort)
+    public void addRooms(float _difficulty, float chanceOfTwoRooms, float chanceOfThreeRooms, int _maxDepth, AnimationCurve _difficultyCurve, int initX, int initY, Room[,] grid, float chanceOfCutShort, float locationToSpriteScale, float _offsetX, float _offsetY)
     {
         if (depth < _maxDepth)
         {
@@ -251,9 +256,9 @@ public class Room {
                 Decision newLocation = decideLocation(grid, initX, initY, chanceOfCutShort);
                 if (newLocation.success)
                 {
-                    Room newRoom = new Room(this,parentTree, roomScale(depth, _maxDepth, _difficultyCurve), false, depth + 1, grid, newLocation.x, newLocation.y);
+                    Room newRoom = new Room(this,parentTree, roomScale(depth, _maxDepth, _difficultyCurve), false, depth + 1, grid, newLocation.x, newLocation.y, locationToSpriteScale, _offsetX, _offsetY);
                     AdjacentRooms.Add(newRoom);
-                    newRoom.addRooms(roomScale(depth + 1, _maxDepth, _difficultyCurve), chanceOfTwoRooms, chanceOfThreeRooms, _maxDepth, _difficultyCurve, newLocation.x, newLocation.y, grid, chanceOfCutShort);
+                    newRoom.addRooms(roomScale(depth + 1, _maxDepth, _difficultyCurve), chanceOfTwoRooms, chanceOfThreeRooms, _maxDepth, _difficultyCurve, newLocation.x, newLocation.y, grid, chanceOfCutShort, locationToSpriteScale, _offsetX, _offsetY);
                 }
             }
 
