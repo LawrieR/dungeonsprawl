@@ -33,6 +33,7 @@ public class GameTree : MonoBehaviour {
     public float chanceOfThreeRooms = 0.01f;
     public float chanceOfTwoRooms = 0.10f;
     public float chanceOfCutShort = 0.01f;
+    int count = 0;
 
     [Header("Game Config")]
     public AnimationCurve difficultyCurve;
@@ -141,6 +142,7 @@ public class GameTree : MonoBehaviour {
     private void setCorridors(Room r, Room[,] grid)
     {
         List<Room.Slot> s = new List<Room.Slot>();
+        
         //Add all directions
         for (int x = 0; x < 4; x++)
         {
@@ -182,7 +184,7 @@ public class GameTree : MonoBehaviour {
 
         for (int x = 0; x < r.AdjacentRooms.Count; x++)
         {
-            setCorridors(r.AdjacentRooms[x], grid);
+            
             GameObject cor;
             //Check adjacent rooms, if present remove from s list
             for (int x2 = s.Count - 1; x2 >= 0; x2--)
@@ -199,20 +201,27 @@ public class GameTree : MonoBehaviour {
             {//Horizontal
                 cor = Instantiate(corridorH);
                 float off = (r.y > r.AdjacentRooms[x].y) ? -0.5f : 0.5f;
-                cor.transform.position = new Vector3((r.x * locationToSpriteScale) + offsetX,
-                    (r.y * locationToSpriteScale + (locationToSpriteScale * off)) + offsetY,
-                    0.49f);
+                
+                    cor.transform.position = new Vector3((r.x * locationToSpriteScale) + offsetX,
+                        (r.y * locationToSpriteScale + (locationToSpriteScale * off)) + offsetY,
+                        0.49f);
+                
+                
             }
             else
             {//Vertical
                 cor = Instantiate(corridorV);
                 float off = (r.x > r.AdjacentRooms[x].x) ? -0.5f : 0.5f;
-                cor.transform.position = new Vector3((r.x * locationToSpriteScale + (locationToSpriteScale * off)) + offsetX,
+                
+                    cor.transform.position = new Vector3((r.x * locationToSpriteScale + (locationToSpriteScale * off)) + offsetX,
                     (r.y * locationToSpriteScale) + offsetY,
                     0.49f);
+                
+                
             }
-             
-            
+
+            setCorridors(r.AdjacentRooms[x], grid);
+
         }
 
         for (int x2 = s.Count - 1; x2 >= 0; x2--)
@@ -221,22 +230,23 @@ public class GameTree : MonoBehaviour {
             //check position against current room
             GameObject block;
             if (r.x != s[x2].x)
-            {//Vertical
+            {//Vertical  
                 block = Instantiate(wallBlockV);
                 float off = (r.x > s[x2].x) ? -0.5f : 0.5f;
-                block.transform.position = new Vector3((r.x * locationToSpriteScale - (locationToSpriteScale * off)) + offsetX,
+                block.transform.position = new Vector3((r.x * locationToSpriteScale + (locationToSpriteScale * off)) + offsetX,
                     (r.y * locationToSpriteScale) + offsetY,
                     0.49f);
             }
-            else if(r.y != s[x2].y)
-            {//Horizontal 
+            else if (r.y != s[x2].y)
+            {//Horizontal   
                 block = Instantiate(wallBlockH);
                 float off = (r.y > s[x2].y) ? -0.5f : 0.5f;
                 block.transform.position = new Vector3((r.x * locationToSpriteScale) + offsetX,
-                    (r.y * locationToSpriteScale + (locationToSpriteScale * off)) + offsetY,
-                    0.49f);
+                (r.y * locationToSpriteScale + (locationToSpriteScale * off)) + offsetY,
+                0.49f);                
             }
         }
+
     }
 
     
