@@ -67,15 +67,21 @@ public class GameTree : MonoBehaviour {
         offsetY = -(gridHeight * locationToSpriteScale / 2f);
 
         gridPositions = new Room[gridWidth, gridHeight];
-        mainRoom = new Room(this, true, false);
+        mainRoom = new Room(this, true, false, offsetX, offsetY, locationToSpriteScale);
 
         Random.InitState(seed); //Use the seed to produce random numbers to allow testing of level ideas etc
+        
         genRooms(Random.Range((gridWidth / 2) - (gridWidth / 6), (gridWidth / 2) + (gridWidth / 6)),
-                 Random.Range((gridHeight / 2) - (gridHeight / 6), (gridHeight / 2) + (gridHeight / 6)),
-                 gridPositions); //Set the initial position of the grid to the middle third of the grid
+                Random.Range((gridHeight / 2) - (gridHeight / 6), (gridHeight / 2) + (gridHeight / 6)),
+                gridPositions); //Set the initial position of the grid to the middle third of the grid
+                 
         genFloor();
         setObjectives();
         setCorridors(mainRoom, gridPositions);
+
+        GameObject sp = mainRoom.makeSpawner(true);
+        sp.GetComponent<SpriteRenderer>().color = Color.green;
+        mainRoom.playerOwned = true;
     }
 
     public void genFloor()
@@ -84,19 +90,19 @@ public class GameTree : MonoBehaviour {
         {
             for(int y = 0; y<gridHeight; y++)
             {
-                
-                if(gridPositions[x,y] != null)
+                Room r1 = gridPositions[x,y];
+                if (r1 != null)
                 {
                     
-                    GameObject room1G = Instantiate(rooms[gridPositions[x, y].getType()]);
+                    GameObject room1G = Instantiate(rooms[gridPositions[x, y].getType()]);                    
                     room1G.transform.position = new Vector3((x * locationToSpriteScale) + offsetX, (y * locationToSpriteScale) + offsetY, 0.6f);
-                    
+                    room1G.GetComponent<RoomSprite>().room = r1;
+
                 }
                 else
                 {
                     GameObject g = Instantiate(floorPrefab);
                     g.transform.position = new Vector3((x * locationToSpriteScale) + offsetX, (y * locationToSpriteScale) + offsetY, 0.5f);
-
                 }
             }
         }

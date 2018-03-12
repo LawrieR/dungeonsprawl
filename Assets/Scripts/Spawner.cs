@@ -8,8 +8,10 @@ public class Spawner : MonoBehaviour {
     public float spawnAfterMilliseconds = 3000f;
     private float timeLeft = 99f;
     public GameObject[] mobs;
-    public bool active = true;
+    public bool active = false;
+    public bool mainSpawner = false;
     
+
     // Use this for initialization
     void Start () {
         timeLeft = spawnAfterMilliseconds;
@@ -37,7 +39,7 @@ public class Spawner : MonoBehaviour {
         BaseMob bm = mob.GetComponent<BaseMob>();
         bm.currentRoom = parentRoom;
 
-        int roomIndex = Random.Range(0, parentRoom.AdjacentRooms.Count-1);
+        int roomIndex = Random.Range(0, parentRoom.AdjacentRooms.Count);
         if(roomIndex >= 0 && roomIndex < parentRoom.AdjacentRooms.Count)
         {
             bm.walkTarget = parentRoom.AdjacentRooms[roomIndex].spawner;

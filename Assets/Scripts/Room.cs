@@ -7,6 +7,7 @@ public class Room {
     GameTree parentTree;
     bool isMain = false;
     bool isObjective = false;
+    public bool playerOwned = false;
     float roomDifficulty = 0f; //percetage difficulty weighting
     int size = 16;
     int type = 0;
@@ -17,6 +18,8 @@ public class Room {
     private float roomz = 0.5f;
     public Room parentRoom;
     public List<Room> AdjacentRooms = new List<Room>();
+
+    public List<GameObject> mobs = new List<GameObject>();
 
     public GameObject spawnerPrefab;
     public GameObject spawner;
@@ -30,12 +33,14 @@ public class Room {
         
     }
 
-    public Room(GameTree gt, bool _isMain, bool _isObjective)
+    public Room(GameTree gt, bool _isMain, bool _isObjective, float _offsetX, float _offsetY, float _locationToSpriteScale)
     {
         parentTree = gt;
         isMain = _isMain;
         isObjective = _isObjective;
-        
+        offsetX = _offsetX;
+        offsetY = _offsetY;
+        locationToSpriteScale = _locationToSpriteScale;
     }
 
     public Room(Room parent, GameTree gt, float _difficulty, bool _isObjective, int _depth, Room[,] grid, int initX, int initY, float _locationToSpriteScale, float _offsetX, float _offsetY)
@@ -52,11 +57,19 @@ public class Room {
         offsetY = _offsetY;
         grid[initX, initY] = this;
         locationToSpriteScale = _locationToSpriteScale;
+        makeSpawner(false);
+        
+    }
+
+    public GameObject makeSpawner(bool isMain)
+    {
         spawnerPrefab = (GameObject)Resources.Load("Assets/Spawner", typeof(GameObject));
         spawner = GameObject.Instantiate(spawnerPrefab);
         spawner.transform.position = new Vector3((x * locationToSpriteScale) + offsetX, (y * locationToSpriteScale) + offsetY, 0.49f);
         spawner.GetComponent<Spawner>().setParent(this);
+        spawner.GetComponent<Spawner>().mainSpawner = isMain;
 
+        return spawner;
     }
 
     public struct Decision
@@ -214,8 +227,9 @@ public class Room {
         x = initX;
         y = initY;
         grid[initX,initY] = this;
+        
 
-        for(int x = 0; x<_initialCount; x++)
+        for (int x = 0; x<_initialCount; x++)
         {
             Decision newLocation = decideLocation(grid, initX, initY, chanceOfCutShort);
             if (newLocation.success)
