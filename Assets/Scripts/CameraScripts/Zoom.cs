@@ -1,10 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+
 // © 2017 TheFlyingKeyboard and released under MIT License
 // theflyingkeyboard.net
 public class Zoom : MonoBehaviour
 {
+    
     public float zoomSpeed;
     public float orthographicSizeMin;
     public float orthographicSizeMax;
@@ -32,6 +35,7 @@ public class Zoom : MonoBehaviour
                 myCamera.orthographicSize -= zoomSpeed;
             }
             myCamera.orthographicSize = Mathf.Clamp(myCamera.orthographicSize, orthographicSizeMin, orthographicSizeMax);
+            
         }
         else
         {
@@ -44,6 +48,10 @@ public class Zoom : MonoBehaviour
                 myCamera.fieldOfView -= zoomSpeed;
             }
             myCamera.fieldOfView = Mathf.Clamp(myCamera.fieldOfView, fovMin, fovMax);
+            
         }
+        
+
+
     }
 }

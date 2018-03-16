@@ -1,11 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BaseMob : MonoBehaviour {
 
     public Room currentRoom;
     public float hitpoints = 100f;
+    float startingHitPoints = 100f;
     float walkSpeed = 0.5f;
     float defaultWalkSpeed = 0.5f;
     float turnSpeed = 0.1f;
@@ -16,16 +18,27 @@ public class BaseMob : MonoBehaviour {
     float minWalkDist = 0.21f;
     float rotationOffset = 90f;
     public bool player = false;
+    public GameObject healthSlider;
+    public Image damageImage;
+    public float damagedFlashSpeed = 5f;
+    public Color damageFlashColour = new Color(1f, 0f, 0f, 0.1f);
+    public bool damaged;
+    public float healthBarHeight = 0.2f;
+
+
     // Use this for initialization
     void Start () {
         transform.position = new Vector3(transform.position.x, transform.position.y, 0.5f);
         walkSpeed = defaultWalkSpeed;
+        startingHitPoints = hitpoints;
+        
     }
 	
 	// Update is called once per frame
 	virtual public void Update () {
         updateMovement();
         updateHealth();
+        updateHealthBarPosition(); //Should be always updated due to moving camera/canvas
     }
 
     public void pickTarget()
@@ -139,7 +152,8 @@ public class BaseMob : MonoBehaviour {
 
     private void updateHealth()
     {
-        if(hitpoints <= 0)
+        healthSlider.GetComponentInChildren<Slider>().value = hitpoints/startingHitPoints;
+        if (hitpoints <= 0)
         {
             currentRoom.mobs.Remove(this.gameObject);
             //If this mob is a hit target for any other mob, remove this from their hit target
@@ -173,8 +187,24 @@ public class BaseMob : MonoBehaviour {
                     }
                 }
             }
-
+            GameObject.Destroy(healthSlider);
             GameObject.Destroy(this.gameObject);
+        }
+        else
+        {
+            if (damageImage != null)
+            {
+                if (damaged)
+                {
+                    damageImage.color = damageFlashColour;
+                    damaged = false;
+                }
+                // Otherwise...
+                else
+                {
+                    damageImage.color = Color.Lerp(damageImage.color, Color.red, damagedFlashSpeed * Time.deltaTime);
+                }
+            }
         }
         //Could do some health recovery ideas here?
     }
@@ -224,6 +254,13 @@ public class BaseMob : MonoBehaviour {
 
 
         return result;
+    }
+
+    public void updateHealthBarPosition()
+    {
+        healthSlider.transform.position = new Vector3(this.transform.position.x, this.transform.position.y + healthBarHeight, this.transform.position.z);
+        healthSlider.gameObject.transform.localScale = (Camera.main.orthographicSize > 2) ? Vector3.zero : Vector3.one;
+        
     }
 
     private void updateMovement()
@@ -292,6 +329,7 @@ public class BaseMob : MonoBehaviour {
                 gameObject.transform.position = Vector3.MoveTowards(new Vector3(transform.position.x, transform.position.y),
                                                                     new Vector3(walkTarget.transform.position.x, walkTarget.transform.position.y),
                                                                     walkSpeed * Time.deltaTime);
+                
 
             }
 
